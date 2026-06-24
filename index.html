@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Storytelling for the next generation of scientists. Hosted by JP Flores." />
+  <title>from where does it STEM?</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--marigold);
+      color: var(--ink);
+    }
+
+    /* ---- Layout helpers ---- */
+    .container { max-width: var(--container); margin: 0 auto; padding: 0 var(--space-6); }
+
+    /* ---- Nav active ---- */
+    .nav-link { transition: opacity .12s; }
+    .nav-link:hover { opacity: .65; }
+
+    /* ---- Episode grid ---- */
+    .episode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+    @media (max-width: 900px) { .episode-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .episode-grid { grid-template-columns: 1fr; } }
+
+    /* ---- Category filter pills ---- */
+    .filter-bar { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-6); }
+    .filter-pill {
+      font-family: var(--font-mono);
+      font-size: var(--type-caption);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-label);
+      border: var(--border-w) solid var(--ink);
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background .1s, color .1s;
+    }
+    .filter-pill:hover, .filter-pill.active {
+      background: var(--ink);
+      color: var(--marigold);
+    }
+
+    /* ---- Pagination ---- */
+    .pagination { display: flex; gap: var(--space-2); align-items: center; justify-content: center; margin-top: var(--space-7); }
+    .page-btn {
+      font-family: var(--font-mono);
+      font-size: var(--type-caption);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-label);
+      border: var(--border-w) solid var(--ink);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      box-shadow: var(--shadow-drawn-sm);
+    }
+    .page-btn:hover { background: var(--ink); color: var(--marigold); }
+    .page-btn.active { background: var(--ink); color: var(--marigold); }
+    .page-btn:disabled { opacity: .35; cursor: default; box-shadow: none; }
+
+    /* ---- Spotify embed ---- */
+    .spotify-frame {
+      border-radius: var(--radius-sm);
+      border: var(--border-w) solid var(--ink);
+      box-shadow: var(--shadow-drawn);
+      width: 100%;
+    }
+
+    /* ---- About section ---- */
+    .about-section {
+      background: var(--cream);
+      border-top: var(--border-w) solid var(--ink);
+      border-bottom: var(--border-w) solid var(--ink);
+    }
+
+    /* ---- Press-in button effect ---- */
+    button:active { transform: translate(2px, 2px); }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+  integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+  crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+  integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+  crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+  integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+  crossorigin="anonymous"></script>
+<script src="_ds_bundle.js"></script>
+<script src="episodes.js"></script>
+
+<script type="text/babel">
+const { Button, Badge, EpisodeCard, TerminalWindow, Avatar, Input } =
+  window.FromWhereDoesItSTEMDesignSystem_8769d8;
+
+const PER_PAGE = 12;
+
+const ALL_CATEGORIES = [
+  { label: "All", value: "" },
+  { label: "Faculty", value: "faculty" },
+  { label: "Grad Students", value: "graduate-student" },
+  { label: "Sci Comm", value: "science-communication" },
+  { label: "Government", value: "government-scientist" },
+  { label: "Undergrads", value: "undergraduates" },
+  { label: "Postdocs", value: "postdoc" },
+  { label: "Science Policy", value: "science-policy" },
+  { label: "Industry", value: "industry" },
+];
+
+function SectionLabel({ children }) {
+  return (
+    <div style={{
+      fontFamily: "var(--font-mono)", fontSize: ".78rem", textTransform: "uppercase",
+      letterSpacing: "0.16em", color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 10
+    }}>
+      <span style={{ width: 26, height: 0, borderTop: "2.5px solid var(--ink)" }} />
+      {children}
+    </div>
+  );
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────
+function Header({ onHome, onShowAbout }) {
+  return (
+    <header style={{
+      position: "sticky", top: 0, zIndex: 10,
+      background: "var(--marigold)", borderBottom: "var(--border-w) solid var(--ink)"
+    }}>
+      <div className="container" style={{ padding: "14px 24px", display: "flex", alignItems: "center", gap: 20 }}>
+        <button onClick={onHome} style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{
+            fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--ink)",
+            border: "2.5px solid var(--ink)", borderRadius: 2, padding: "3px 7px", fontSize: ".8rem"
+          }}>X — □</span>
+          <span style={{ fontFamily: "var(--font-marker)", fontSize: "1.35rem", color: "var(--ink)", lineHeight: 1 }}>
+            from where does it STEM?
+          </span>
+        </button>
+        <nav style={{ marginLeft: "auto", display: "flex", gap: 4, alignItems: "center" }}>
+          {[["Episodes", onHome], ["About", onShowAbout]].map(([label, handler]) => (
+            <button key={label} onClick={handler} className="nav-link" style={{
+              all: "unset", cursor: "pointer",
+              fontFamily: "var(--font-mono)", fontSize: ".82rem", textTransform: "uppercase",
+              letterSpacing: ".12em", color: "var(--ink)", padding: "8px 12px"
+            }}>{label}</button>
+          ))}
+          <a href="https://podcasters.spotify.com/pod/show/fromwheredoesitstem"
+            target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+            <Button variant="solid">Listen ▸</Button>
+          </a>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+// ── Hero ───────────────────────────────────────────────────────────────────
+function Hero({ onBrowse }) {
+  const platforms = [
+    { label: "Spotify", url: "https://podcasters.spotify.com/pod/show/fromwheredoesitstem" },
+    { label: "Apple Podcasts", url: "https://podcasts.apple.com/us/podcast/from-where-does-it-stem/id1528193343" },
+  ];
+  return (
+    <section style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "64px 24px 40px",
+      display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
+      <div>
+        <Badge tone="ink">Storytelling for the next generation of scientists</Badge>
+        <h1 style={{
+          fontFamily: "var(--font-marker)", fontSize: "clamp(2.6rem, 5vw, 4.2rem)",
+          lineHeight: 1.02, color: "var(--ink)", margin: "20px 0 18px"
+        }}>
+          From where<br />does it STEM?
+        </h1>
+        <p style={{
+          fontFamily: "var(--font-body)", fontSize: "1.15rem", lineHeight: 1.6,
+          color: "var(--ink-700)", maxWidth: 520, margin: "0 0 26px"
+        }}>
+          Studying STEM can be daunting and inaccessible — especially for students in
+          underrepresented communities. We capture stories of resilience and scientific
+          journeys, getting down to the roots to ask the real question.
+        </p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <Button variant="solid" size="lg" onClick={onBrowse}>▸ Browse all 60 episodes</Button>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {platforms.map(({ label, url }) => (
+              <a key={label} href={url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                <Badge tone="outline">{label}</Badge>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {["from where", "does it", "STEM?"].map((t, i) => (
+          <div key={i} style={{
+            background: "var(--ink)", border: "2.5px solid var(--ink)", borderRadius: 2,
+            boxShadow: "var(--shadow-drawn)", overflow: "hidden", marginLeft: i * 28
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 11px" }}>
+              <span style={{ color: "var(--marigold)", fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: ".78rem" }}>X — □</span>
+              <span style={{ flex: 1, borderTop: "2px solid var(--marigold)", borderBottom: "2px solid var(--marigold)", height: 6 }} />
+            </div>
+            <div style={{
+              padding: "14px 20px 20px", fontFamily: "var(--font-marker)",
+              color: "var(--marigold)", fontSize: i === 2 ? "3rem" : "2rem", lineHeight: 1
+            }}>{t}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Episode Grid ───────────────────────────────────────────────────────────
+function EpisodeGrid({ onOpen, initialPage = 0 }) {
+  const [category, setCategory] = React.useState("");
+  const [page, setPage] = React.useState(initialPage);
+
+  React.useEffect(() => { setPage(0); }, [category]);
+
+  const filtered = category
+    ? EPISODES.filter(ep => ep.categories.includes(category))
+    : EPISODES;
+
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  const pageEps = filtered.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
+
+  const scrollToGrid = () => {
+    document.getElementById("episodes-section")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <section id="episodes-section" style={{
+      background: "var(--cream)", borderTop: "var(--border-w) solid var(--ink)",
+      borderBottom: "var(--border-w) solid var(--ink)"
+    }}>
+      <div style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "48px 24px 56px" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 20 }}>
+          <h2 style={{ fontFamily: "var(--font-marker)", fontSize: "2.4rem", color: "var(--ink)", margin: 0 }}>
+            All episodes
+          </h2>
+          <SectionLabel>{filtered.length} episode{filtered.length !== 1 ? "s" : ""}</SectionLabel>
+        </div>
+
+        <div className="filter-bar">
+          {ALL_CATEGORIES.map(({ label, value }) => (
+            <button key={value} className={`filter-pill${category === value ? " active" : ""}`}
+              onClick={() => setCategory(value)}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {pageEps.length === 0 ? (
+          <p style={{ fontFamily: "var(--font-body)", color: "var(--ink-500)", textAlign: "center", padding: "48px 0" }}>
+            No episodes in this category yet.
+          </p>
+        ) : (
+          <div className="episode-grid">
+            {pageEps.map(ep => (
+              <EpisodeCard
+                key={ep.number}
+                number={ep.number}
+                topic={ep.topic}
+                title={ep.title}
+                guest={ep.guest}
+                blurb={ep.blurb}
+                onClick={() => onOpen(ep)}
+              />
+            ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button className="page-btn" disabled={page === 0}
+              onClick={() => { setPage(p => p - 1); scrollToGrid(); }}>
+              ← Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button key={i} className={`page-btn${page === i ? " active" : ""}`}
+                onClick={() => { setPage(i); scrollToGrid(); }}>
+                {i + 1}
+              </button>
+            ))}
+            <button className="page-btn" disabled={page === totalPages - 1}
+              onClick={() => { setPage(p => p + 1); scrollToGrid(); }}>
+              Next →
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ── Episode Player ─────────────────────────────────────────────────────────
+function EpisodePlayer({ ep, onBack }) {
+  return (
+    <section style={{ maxWidth: 860, margin: "0 auto", padding: "40px 24px 72px" }}>
+      <button onClick={onBack} style={{
+        all: "unset", cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: ".8rem",
+        textTransform: "uppercase", letterSpacing: ".14em", color: "var(--ink)",
+        marginBottom: 22, display: "inline-block"
+      }}>← All episodes</button>
+
+      <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+        <Badge tone="ink">EP. {ep.number}</Badge>
+        <Badge tone="outline">{ep.topic}</Badge>
+        {ep.date && (
+          <Badge tone="outline">
+            {new Date(ep.date + "T12:00:00").toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+          </Badge>
+        )}
+      </div>
+
+      <h1 style={{
+        fontFamily: "var(--font-marker)", fontSize: "clamp(2rem, 4vw, 3rem)",
+        lineHeight: 1.05, color: "var(--ink)", margin: "0 0 14px"
+      }}>{ep.title}</h1>
+
+      {ep.guest && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 12, marginBottom: 28,
+          fontFamily: "var(--font-mono)", fontSize: ".85rem", color: "var(--ink)", lineHeight: 1.4
+        }}>
+          <Avatar size={44} />
+          <div>
+            <div style={{ fontWeight: 700 }}>{ep.guest}</div>
+            <div style={{ opacity: .65, fontSize: ".78rem", textTransform: "uppercase", letterSpacing: ".1em" }}>guest</div>
+          </div>
+        </div>
+      )}
+
+      {ep.spotifyEmbed ? (
+        <div style={{ marginBottom: 28 }}>
+          <TerminalWindow title="NOW PLAYING" style={{ padding: 0 }}>
+            <div style={{ padding: "var(--space-5)" }}>
+              <iframe
+                className="spotify-frame"
+                src={ep.spotifyEmbed}
+                height="152"
+                frameBorder="0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+                title={`Listen to EP. ${ep.number}: ${ep.title}`}
+              />
+            </div>
+          </TerminalWindow>
+        </div>
+      ) : (
+        <div style={{ marginBottom: 28 }}>
+          <a href="https://podcasters.spotify.com/pod/show/fromwheredoesitstem"
+            target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+            <Button variant="solid" size="lg">▸ Listen on Spotify</Button>
+          </a>
+        </div>
+      )}
+
+      {ep.blurb && (
+        <p style={{
+          fontFamily: "var(--font-body)", fontSize: "1.12rem", lineHeight: 1.7,
+          color: "var(--ink-700)", margin: "0 0 24px"
+        }}>{ep.blurb}</p>
+      )}
+
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <a href={`mailto:jpflores13@gmail.com?subject=Transcript request: EP. ${ep.number} ${ep.title}`}
+          style={{ textDecoration: "none" }}>
+          <Button variant="marigold">Request transcript</Button>
+        </a>
+        <Button variant="ghost"
+          onClick={() => navigator.share?.({ title: `EP. ${ep.number}: ${ep.title} — from where does it STEM?`, url: window.location.href }) ?? navigator.clipboard?.writeText(window.location.href)}>
+          Share
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+// ── About ──────────────────────────────────────────────────────────────────
+function About() {
+  return (
+    <section className="about-section">
+      <div style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "64px 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
+          <div>
+            <SectionLabel>About the show</SectionLabel>
+            <h2 style={{ fontFamily: "var(--font-marker)", fontSize: "2.6rem", color: "var(--ink)", margin: "16px 0 20px", lineHeight: 1.05 }}>
+              Getting down<br />to the roots
+            </h2>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.1rem", lineHeight: 1.7, color: "var(--ink-700)", margin: "0 0 16px" }}>
+              Studying STEM can be daunting, difficult, and inaccessible — especially to students
+              in marginalized, underrepresented communities. Prominent scientists seem to have
+              something "innate" which discourages students from pursuing STEM.
+            </p>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.1rem", lineHeight: 1.7, color: "var(--ink-700)", margin: "0 0 28px" }}>
+              In this podcast, JP Flores sets out to capture stories of resilience, scientific
+              journeys, and inspiration that have built and shaped many diverse scientists.
+              We want to get down to the roots and ask the real question.
+            </p>
+            <a href="https://jpflores.rbind.io/about/" target="_blank" rel="noopener noreferrer"
+              style={{ textDecoration: "none" }}>
+              <Button variant="solid">About JP Flores</Button>
+            </a>
+          </div>
+          <div>
+            <TerminalWindow title="The host">
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+                <img src="assets/logo-circle-instagram.png" alt="from where does it STEM? logo"
+                  style={{ width: 72, height: 72, borderRadius: 999, border: "2.5px solid var(--marigold)", objectFit: "cover" }} />
+                <div>
+                  <div style={{ fontFamily: "var(--font-marker)", fontSize: "1.4rem", color: "var(--marigold)", lineHeight: 1.1 }}>JP Flores</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: ".75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "var(--cream)", marginTop: 4 }}>
+                    Host · UNC Chapel Hill
+                  </div>
+                </div>
+              </div>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: ".95rem", lineHeight: 1.6, color: "var(--cream-deep)", margin: 0 }}>
+                JP Flores is a researcher at UNC Chapel Hill and the host and creator of
+                from where does it STEM? — a podcast dedicated to humanizing science and
+                amplifying underrepresented voices in STEM.
+              </p>
+            </TerminalWindow>
+            <div style={{ marginTop: 20 }}>
+              <TerminalWindow title="By the numbers" variant="paper">
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  {[["60+", "Episodes"], ["2020", "Started"], ["10+", "Categories"], ["Free", "Always"]].map(([num, label]) => (
+                    <div key={label}>
+                      <div style={{ fontFamily: "var(--font-marker)", fontSize: "2rem", color: "var(--ink)", lineHeight: 1 }}>{num}</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: ".72rem", textTransform: "uppercase", letterSpacing: ".14em", color: "var(--ink-500)", marginTop: 2 }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
+              </TerminalWindow>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Newsletter ─────────────────────────────────────────────────────────────
+function Newsletter() {
+  const [sent, setSent] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  return (
+    <section style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "56px 24px" }}>
+      <div style={{
+        background: "var(--ink)", border: "2.5px solid var(--ink)", borderRadius: 2,
+        boxShadow: "var(--shadow-drawn)", padding: "40px",
+        display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 36, alignItems: "center"
+      }}>
+        <div>
+          <h2 style={{ fontFamily: "var(--font-marker)", fontSize: "2.2rem", color: "var(--marigold)", margin: "0 0 10px" }}>Get to the roots</h2>
+          <p style={{ fontFamily: "var(--font-body)", color: "var(--cream)", fontSize: "1.05rem", lineHeight: 1.6, margin: 0 }}>
+            New episodes, guest spotlights, and behind-the-mic notes. No spam — just science journeys.
+          </p>
+        </div>
+        <div style={{ background: "var(--marigold)", padding: 20, border: "2.5px solid var(--marigold)", borderRadius: 2 }}>
+          {sent ? (
+            <div style={{ fontFamily: "var(--font-mono)", color: "var(--ink)", textTransform: "uppercase", letterSpacing: ".12em", fontSize: ".85rem" }}>
+              ✓ You're on the list!
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <Input
+                label="Email"
+                placeholder="you@school.edu"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && email && setSent(true)}
+              />
+              <Button variant="solid" onClick={() => email && setSent(true)}>Join the list</Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Footer ─────────────────────────────────────────────────────────────────
+function Footer({ onHome }) {
+  const social = [
+    { label: "Bluesky", url: "https://bsky.app/profile/jpflores.rbind.io" },
+    { label: "Instagram", url: "https://www.instagram.com/jpflores_31/" },
+    { label: "Spotify", url: "https://podcasters.spotify.com/pod/show/fromwheredoesitstem" },
+    { label: "GitHub", url: "https://github.com/jpflores-13" },
+  ];
+  return (
+    <footer style={{ background: "var(--marigold)", borderTop: "var(--border-w) solid var(--ink)" }}>
+      <div style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "32px 24px",
+        display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", justifyContent: "space-between" }}>
+        <button onClick={onHome} style={{ all: "unset", cursor: "pointer", fontFamily: "var(--font-marker)", fontSize: "1.3rem", color: "var(--ink)" }}>
+          from where does it STEM?
+        </button>
+        <nav style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {social.map(({ label, url }) => (
+            <a key={label} href={url} target="_blank" rel="noopener noreferrer" style={{
+              fontFamily: "var(--font-mono)", fontSize: ".76rem", textTransform: "uppercase",
+              letterSpacing: ".12em", color: "var(--ink)", textDecoration: "none",
+              border: "2.5px solid var(--ink)", borderRadius: 2, padding: "6px 10px"
+            }}>{label}</a>
+          ))}
+        </nav>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: ".7rem", color: "var(--ink-700)", width: "100%" }}>
+          Hosted by JP Flores · © {new Date().getFullYear()} · Storytelling for the next generation of scientists.
+        </span>
+      </div>
+    </footer>
+  );
+}
+
+// ── App ────────────────────────────────────────────────────────────────────
+function App() {
+  const [view, setView] = React.useState("home"); // "home" | "episodes" | "episode" | "about"
+  const [activeEp, setActiveEp] = React.useState(null);
+
+  const goHome = () => { setView("home"); setActiveEp(null); window.scrollTo(0, 0); };
+  const goAbout = () => { setView("about"); setActiveEp(null); window.scrollTo(0, 0); };
+  const openEp = (ep) => { setActiveEp(ep); setView("episode"); window.scrollTo(0, 0); };
+  const browseAll = () => { setView("episodes"); window.scrollTo(0, 0); };
+
+  return (
+    <div>
+      <Header onHome={goHome} onShowAbout={goAbout} />
+
+      {view === "home" && (
+        <>
+          <Hero onBrowse={browseAll} />
+          <EpisodeGrid onOpen={openEp} />
+          <About />
+          <Newsletter />
+        </>
+      )}
+
+      {view === "episodes" && (
+        <div style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "40px 24px 0" }}>
+          <EpisodeGrid onOpen={openEp} />
+        </div>
+      )}
+
+      {view === "episode" && activeEp && (
+        <EpisodePlayer ep={activeEp} onBack={browseAll} />
+      )}
+
+      {view === "about" && (
+        <>
+          <About />
+          <Newsletter />
+        </>
+      )}
+
+      <Footer onHome={goHome} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

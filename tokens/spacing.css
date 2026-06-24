@@ -1,0 +1,30 @@
+:root {
+  /* ---- Spacing scale ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* ---- Radii (mostly hard/square per the boxy terminal motif) ---- */
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+
+  /* ---- Borders ---- */
+  --border-w: 2.5px;        /* signature heavy ink stroke */
+  --border-w-thick: 4px;
+
+  /* ---- Shadows: hard offset "drawn" shadow, no blur ---- */
+  --shadow-drawn: 5px 5px 0 var(--ink);
+  --shadow-drawn-sm: 3px 3px 0 var(--ink);
+  --shadow-drawn-marigold: 5px 5px 0 var(--marigold);
+
+  /* ---- Layout ---- */
+  --container: 1120px;
+}

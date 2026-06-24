@@ -1,0 +1,27 @@
+:root {
+  /* ---- Families ---- */
+  --font-marker: "Permanent Marker", "Comic Sans MS", cursive;  /* hand-lettered display */
+  --font-mono: "Space Mono", ui-monospace, "SFMono-Regular", monospace; /* terminal / labels */
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif; /* readable body */
+
+  /* ---- Display scale (marker) ---- */
+  --type-hero: clamp(3rem, 9vw, 7rem);
+  --type-display: clamp(2.4rem, 6vw, 4.5rem);
+  --type-title: 2rem;
+  --type-subtitle: 1.4rem;
+
+  /* ---- Text scale ---- */
+  --type-lead: 1.25rem;
+  --type-body: 1.0625rem;
+  --type-small: 0.9375rem;
+
+  /* ---- Mono / label scale ---- */
+  --type-label: 0.8125rem;   /* uppercase mono labels */
+  --type-caption: 0.75rem;
+
+  /* ---- Weights / spacing ---- */
+  --tracking-label: 0.16em;
+  --tracking-tight: -0.01em;
+  --leading-body: 1.6;
+  --leading-tight: 1.1;
+}
