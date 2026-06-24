@@ -25,10 +25,51 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+
+    /* ---- Bold mode (default): full marigold ---- */
+    :root {
+      --c-page:   var(--marigold);
+      --c-header: var(--marigold);
+      --c-grid:   var(--cream);
+      --c-footer: var(--marigold);
+    }
+    /* ---- Calm mode: cream surfaces, marigold accent ---- */
+    [data-mode="calm"] {
+      --c-page:   var(--cream);
+      --c-header: var(--cream);
+      --c-grid:   var(--marigold);
+      --c-footer: var(--cream);
+    }
+
     body {
       margin: 0;
-      background: var(--marigold);
+      background: var(--c-page);
       color: var(--ink);
+    }
+
+    /* ---- Mode toggle ---- */
+    .mode-toggle {
+      display: flex;
+      border: var(--border-w) solid var(--ink);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-drawn-sm);
+      overflow: hidden;
+    }
+    .mode-toggle button {
+      all: unset;
+      cursor: pointer;
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--ink);
+      background: transparent;
+    }
+    .mode-toggle button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--marigold);
     }
 
     /* ---- Layout helpers ---- */
@@ -159,12 +200,28 @@ function SectionLabel({ children }) {
   );
 }
 
+// ── Mode Toggle ────────────────────────────────────────────────────────────
+function ModeToggle() {
+  const saved = () => localStorage.getItem("fwdis-mode") || "bold";
+  const [mode, setMode] = React.useState(saved);
+  React.useEffect(() => {
+    document.documentElement.setAttribute("data-mode", mode);
+    localStorage.setItem("fwdis-mode", mode);
+  }, [mode]);
+  return (
+    <div className="mode-toggle">
+      <button aria-pressed={mode === "bold"} onClick={() => setMode("bold")}>Bold</button>
+      <button aria-pressed={mode === "calm"} onClick={() => setMode("calm")}>Calm</button>
+    </div>
+  );
+}
+
 // ── Header ─────────────────────────────────────────────────────────────────
 function Header({ onHome, onShowAbout }) {
   return (
     <header style={{
       position: "sticky", top: 0, zIndex: 10,
-      background: "var(--marigold)", borderBottom: "var(--border-w) solid var(--ink)"
+      background: "var(--c-header)", borderBottom: "var(--border-w) solid var(--ink)"
     }}>
       <div className="container" style={{ padding: "14px 24px", display: "flex", alignItems: "center", gap: 20 }}>
         <button onClick={onHome} style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
@@ -188,6 +245,7 @@ function Header({ onHome, onShowAbout }) {
             target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
             <Button variant="solid">Listen ▸</Button>
           </a>
+          <ModeToggle />
         </nav>
       </div>
     </header>
@@ -530,7 +588,7 @@ function Footer({ onHome }) {
     { label: "GitHub", url: "https://github.com/jpflores-13" },
   ];
   return (
-    <footer style={{ background: "var(--marigold)", borderTop: "var(--border-w) solid var(--ink)" }}>
+    <footer style={{ background: "var(--c-footer)", borderTop: "var(--border-w) solid var(--ink)" }}>
       <div style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "32px 24px",
         display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", justifyContent: "space-between" }}>
         <button onClick={onHome} style={{ all: "unset", cursor: "pointer", fontFamily: "var(--font-marker)", fontSize: "1.3rem", color: "var(--ink)" }}>
