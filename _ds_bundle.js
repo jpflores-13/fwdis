@@ -180,7 +180,6 @@ function EpisodeCard({
   topic,
   blurb,
   cover,
-  avatar,
   onClick,
   style,
   ...rest
@@ -251,16 +250,9 @@ function EpisodeCard({
   }, blurb), guest && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: "auto",
-      display: "flex",
-      alignItems: "center",
-      gap: "var(--space-3)",
       paddingTop: "var(--space-3)"
     }
-  }, /*#__PURE__*/React.createElement(__ds_scope.Avatar, {
-    src: avatar,
-    alt: guest,
-    size: 40
-  }), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: "var(--font-mono)",
       fontSize: "var(--type-caption)",

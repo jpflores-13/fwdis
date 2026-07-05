@@ -180,21 +180,10 @@
 <script src="episodes.js"></script>
 
 <script type="text/babel">
-const { Button, Badge, EpisodeCard, TerminalWindow, Avatar, Input } =
+const { Button, Badge, EpisodeCard, TerminalWindow, Input } =
   window.FromWhereDoesItSTEMDesignSystem_8769d8;
 
 const PER_PAGE = 12;
-
-// Default guest avatar: a hand-drawn atom, standing in for a photo.
-const SCIENCE_ICON = "data:image/svg+xml;utf8," + encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <g fill="none" stroke="#0F0E0C" stroke-width="3.4" stroke-linecap="round">
-    <ellipse cx="32" cy="32" rx="27" ry="11"/>
-    <ellipse cx="32" cy="32" rx="27" ry="11" transform="rotate(60 32 32)"/>
-    <ellipse cx="32" cy="32" rx="27" ry="11" transform="rotate(120 32 32)"/>
-  </g>
-  <circle cx="32" cy="32" r="6" fill="#0F0E0C"/>
-</svg>`);
 
 const ALL_CATEGORIES = [
   { label: "All", value: "" },
@@ -416,7 +405,6 @@ function EpisodeGrid({ onOpen, initialPage = 0 }) {
                 topic={ep.topic}
                 title={ep.title}
                 guest={ep.guest}
-                avatar={ep.avatar || SCIENCE_ICON}
                 blurb={ep.blurb}
                 onClick={() => onOpen(ep)}
               />
@@ -474,14 +462,11 @@ function EpisodePlayer({ ep, onBack }) {
 
       {ep.guest && (
         <div style={{
-          display: "flex", alignItems: "center", gap: 12, marginBottom: 28,
+          marginBottom: 28,
           fontFamily: "var(--font-mono)", fontSize: ".85rem", color: "var(--ink)", lineHeight: 1.4
         }}>
-          <Avatar src={ep.avatar || SCIENCE_ICON} alt={ep.guest} size={44} />
-          <div>
-            <div style={{ fontWeight: 700 }}>{ep.guest}</div>
-            <div style={{ opacity: .65, fontSize: ".78rem", textTransform: "uppercase", letterSpacing: ".1em" }}>guest</div>
-          </div>
+          <div style={{ fontWeight: 700 }}>{ep.guest}</div>
+          <div style={{ opacity: .65, fontSize: ".78rem", textTransform: "uppercase", letterSpacing: ".1em" }}>guest</div>
         </div>
       )}
 
