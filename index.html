@@ -158,6 +158,15 @@
 
 <div id="root"></div>
 
+<!-- Static shadow form so Netlify's deploy-time bot can detect this form; the
+     React-rendered version below submits to it via fetch. -->
+<form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="name" />
+  <input type="email" name="email" />
+  <textarea name="message"></textarea>
+  <input type="text" name="bot-field" />
+</form>
+
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"
   integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
   crossorigin="anonymous"></script>
@@ -175,6 +184,17 @@ const { Button, Badge, EpisodeCard, TerminalWindow, Avatar, Input } =
   window.FromWhereDoesItSTEMDesignSystem_8769d8;
 
 const PER_PAGE = 12;
+
+// Default guest avatar: a hand-drawn atom, standing in for a photo.
+const SCIENCE_ICON = "data:image/svg+xml;utf8," + encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <g fill="none" stroke="#0F0E0C" stroke-width="3.4" stroke-linecap="round">
+    <ellipse cx="32" cy="32" rx="27" ry="11"/>
+    <ellipse cx="32" cy="32" rx="27" ry="11" transform="rotate(60 32 32)"/>
+    <ellipse cx="32" cy="32" rx="27" ry="11" transform="rotate(120 32 32)"/>
+  </g>
+  <circle cx="32" cy="32" r="6" fill="#0F0E0C"/>
+</svg>`);
 
 const ALL_CATEGORIES = [
   { label: "All", value: "" },
@@ -396,6 +416,7 @@ function EpisodeGrid({ onOpen, initialPage = 0 }) {
                 topic={ep.topic}
                 title={ep.title}
                 guest={ep.guest}
+                avatar={ep.avatar || SCIENCE_ICON}
                 blurb={ep.blurb}
                 onClick={() => onOpen(ep)}
               />
@@ -456,7 +477,7 @@ function EpisodePlayer({ ep, onBack }) {
           display: "flex", alignItems: "center", gap: 12, marginBottom: 28,
           fontFamily: "var(--font-mono)", fontSize: ".85rem", color: "var(--ink)", lineHeight: 1.4
         }}>
-          <Avatar size={44} />
+          <Avatar src={ep.avatar || SCIENCE_ICON} alt={ep.guest} size={44} />
           <div>
             <div style={{ fontWeight: 700 }}>{ep.guest}</div>
             <div style={{ opacity: .65, fontSize: ".78rem", textTransform: "uppercase", letterSpacing: ".1em" }}>guest</div>
@@ -544,14 +565,14 @@ function About() {
                 <div>
                   <div style={{ fontFamily: "var(--font-marker)", fontSize: "1.4rem", color: "var(--marigold)", lineHeight: 1.1 }}>JP Flores</div>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: ".75rem", textTransform: "uppercase", letterSpacing: ".12em", color: "var(--cream)", marginTop: 4 }}>
-                    Host · UNC Chapel Hill
+                    Host · Postdoc, Case Western Reserve University
                   </div>
                 </div>
               </div>
               <p style={{ fontFamily: "var(--font-body)", fontSize: ".95rem", lineHeight: 1.6, color: "var(--cream-deep)", margin: 0 }}>
-                JP Flores is a researcher at UNC Chapel Hill and the host and creator of
-                from where does it STEM? — a podcast dedicated to humanizing science and
-                amplifying underrepresented voices in STEM.
+                JP Flores is a postdoctoral researcher at Case Western Reserve University and
+                the host and creator of from where does it STEM? — a podcast dedicated to
+                humanizing science and amplifying underrepresented voices in STEM.
               </p>
             </TerminalWindow>
             <div style={{ marginTop: 20 }}>
@@ -573,10 +594,29 @@ function About() {
   );
 }
 
-// ── Newsletter ─────────────────────────────────────────────────────────────
-function Newsletter() {
-  const [sent, setSent] = React.useState(false);
-  const [email, setEmail] = React.useState("");
+// ── Contact ────────────────────────────────────────────────────────────────
+function encodeForm(data) {
+  return Object.keys(data).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k])).join("&");
+}
+
+function Contact() {
+  const [status, setStatus] = React.useState("idle"); // "idle" | "sending" | "sent" | "error"
+  const [form, setForm] = React.useState({ name: "", email: "", message: "" });
+
+  const field = key => e => setForm(f => ({ ...f, [key]: e.target.value }));
+
+  const handleSubmit = () => {
+    if (!form.name || !form.email || !form.message) return;
+    setStatus("sending");
+    fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: encodeForm({ "form-name": "contact", ...form }),
+    })
+      .then(() => setStatus("sent"))
+      .catch(() => setStatus("error"));
+  };
+
   return (
     <section style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "56px 24px" }}>
       <div style={{
@@ -585,26 +625,46 @@ function Newsletter() {
         display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 36, alignItems: "center"
       }}>
         <div>
-          <h2 style={{ fontFamily: "var(--font-marker)", fontSize: "2.2rem", color: "var(--marigold)", margin: "0 0 10px" }}>Get to the roots</h2>
+          <h2 style={{ fontFamily: "var(--font-marker)", fontSize: "2.2rem", color: "var(--marigold)", margin: "0 0 10px" }}>Contact me</h2>
           <p style={{ fontFamily: "var(--font-body)", color: "var(--cream)", fontSize: "1.05rem", lineHeight: 1.6, margin: 0 }}>
-            New episodes, guest spotlights, and behind-the-mic notes. No spam — just science journeys.
+            Get in touch — I'd love to hear from you. Guest pitches, feedback, or just to say hi.
           </p>
         </div>
         <div style={{ background: "var(--marigold)", padding: 20, border: "2.5px solid var(--marigold)", borderRadius: 2 }}>
-          {sent ? (
+          {status === "sent" ? (
             <div style={{ fontFamily: "var(--font-mono)", color: "var(--ink)", textTransform: "uppercase", letterSpacing: ".12em", fontSize: ".85rem" }}>
-              ✓ You're on the list!
+              ✓ Message sent — thanks for reaching out!
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <Input
-                label="Email"
-                placeholder="you@school.edu"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && email && setSent(true)}
-              />
-              <Button variant="solid" onClick={() => email && setSent(true)}>Join the list</Button>
+              <Input label="Full name" placeholder="Ada Lovelace" value={form.name} onChange={field("name")} />
+              <Input label="Email" type="email" placeholder="you@school.edu" value={form.email} onChange={field("email")} />
+              <label style={{ display: "block", fontFamily: "var(--font-mono)" }}>
+                <span style={{
+                  display: "block", fontSize: "var(--type-caption)", textTransform: "uppercase",
+                  letterSpacing: "var(--tracking-label)", marginBottom: 6, color: "var(--ink)"
+                }}>Message</span>
+                <textarea
+                  rows={4}
+                  placeholder="What's on your mind?"
+                  value={form.message}
+                  onChange={field("message")}
+                  style={{
+                    width: "100%", boxSizing: "border-box", padding: "11px 14px", resize: "vertical",
+                    fontFamily: "var(--font-mono)", fontSize: "0.95rem", color: "var(--ink)",
+                    background: "var(--white)", border: "var(--border-w) solid var(--ink)",
+                    borderRadius: "var(--radius-sm)", outline: "none"
+                  }}
+                />
+              </label>
+              <Button variant="solid" onClick={handleSubmit} disabled={status === "sending"}>
+                {status === "sending" ? "Sending…" : "Send message"}
+              </Button>
+              {status === "error" && (
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: ".78rem", color: "var(--ink)" }}>
+                  Something went wrong — email jpflores13@gmail.com directly instead.
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -665,7 +725,7 @@ function App() {
           <Recognition />
           <EpisodeGrid onOpen={openEp} />
           <About />
-          <Newsletter />
+          <Contact />
         </>
       )}
 
@@ -682,7 +742,7 @@ function App() {
       {view === "about" && (
         <>
           <About />
-          <Newsletter />
+          <Contact />
         </>
       )}
 
