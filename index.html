@@ -309,6 +309,40 @@ function Hero({ onBrowse }) {
   );
 }
 
+// ── Recognition ────────────────────────────────────────────────────────────
+function Recognition() {
+  return (
+    <section style={{ background: "var(--ink)", borderTop: "var(--border-w) solid var(--ink)", borderBottom: "var(--border-w) solid var(--ink)" }}>
+      <div className="container recognition-bar" style={{
+        maxWidth: "var(--container)", margin: "0 auto", padding: "28px 24px",
+        display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap"
+      }}>
+        <img src="assets/spotify-nextwave-badge.png" alt="Spotify Next Wave Podcast Pick badge"
+          style={{
+            width: 84, height: 84, borderRadius: 2, objectFit: "cover",
+            border: "2.5px solid var(--marigold)", boxShadow: "var(--shadow-drawn-sm)", flexShrink: 0
+          }} />
+        <div style={{ flex: "1 1 320px" }}>
+          <div style={{
+            fontFamily: "var(--font-mono)", fontSize: ".72rem", textTransform: "uppercase",
+            letterSpacing: ".16em", color: "var(--marigold)", marginBottom: 6
+          }}>Recognition</div>
+          <div style={{ fontFamily: "var(--font-marker)", fontSize: "1.5rem", color: "var(--cream)", lineHeight: 1.15, marginBottom: 4 }}>
+            A Spotify Next Wave Podcast Pick
+          </div>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: ".95rem", color: "var(--cream-deep)", margin: 0 }}>
+            Selected by Spotify as part of the next generation of podcast creators.
+          </p>
+        </div>
+        <a href="https://podcasters.spotify.com/pod/show/fromwheredoesitstem"
+          target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+          <Badge tone="marigold">Listen on Spotify ▸</Badge>
+        </a>
+      </div>
+    </section>
+  );
+}
+
 // ── Episode Grid ───────────────────────────────────────────────────────────
 function EpisodeGrid({ onOpen, initialPage = 0 }) {
   const [category, setCategory] = React.useState("");
@@ -628,6 +662,7 @@ function App() {
       {view === "home" && (
         <>
           <Hero onBrowse={browseAll} />
+          <Recognition />
           <EpisodeGrid onOpen={openEp} />
           <About />
           <Newsletter />
