@@ -41,6 +41,7 @@
       --c-footer: var(--cream);
     }
 
+    html, body { overflow-x: hidden; }
     body {
       margin: 0;
       background: var(--c-page);
@@ -150,6 +151,27 @@
       .hero-terminals { display: none !important; }
     }
 
+    /* ---- Header mobile ---- */
+    @media (max-width: 680px) {
+      header .container { flex-wrap: wrap; row-gap: 10px; }
+      .site-nav {
+        margin-left: 0 !important;
+        width: 100%;
+        flex-wrap: wrap;
+        row-gap: 8px;
+        justify-content: space-between;
+      }
+      .wordmark { font-size: 1.1rem !important; }
+    }
+
+    /* ---- About / Contact mobile stack ---- */
+    @media (max-width: 760px) {
+      .about-grid, .contact-card { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 480px) {
+      .contact-card { padding: 24px !important; }
+    }
+
     /* ---- Press-in button effect ---- */
     button:active { transform: translate(2px, 2px); }
   </style>
@@ -238,11 +260,11 @@ function Header({ onHome, onShowAbout }) {
             fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--ink)",
             border: "2.5px solid var(--ink)", borderRadius: 2, padding: "3px 7px", fontSize: ".8rem"
           }}>X — □</span>
-          <span style={{ fontFamily: "var(--font-marker)", fontSize: "1.35rem", color: "var(--ink)", lineHeight: 1 }}>
+          <span className="wordmark" style={{ fontFamily: "var(--font-marker)", fontSize: "1.35rem", color: "var(--ink)", lineHeight: 1 }}>
             from where does it STEM?
           </span>
         </button>
-        <nav style={{ marginLeft: "auto", display: "flex", gap: 4, alignItems: "center" }}>
+        <nav className="site-nav" style={{ marginLeft: "auto", display: "flex", gap: 4, alignItems: "center" }}>
           {[["Episodes", onHome], ["About", onShowAbout]].map(([label, handler]) => (
             <button key={label} onClick={handler} className="nav-link" style={{
               all: "unset", cursor: "pointer",
@@ -521,7 +543,7 @@ function About() {
   return (
     <section className="about-section">
       <div style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "64px 24px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
+        <div className="about-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
           <div>
             <SectionLabel>About the show</SectionLabel>
             <h2 style={{ fontFamily: "var(--font-marker)", fontSize: "2.6rem", color: "var(--ink)", margin: "16px 0 20px", lineHeight: 1.05 }}>
@@ -604,7 +626,7 @@ function Contact() {
 
   return (
     <section style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "56px 24px" }}>
-      <div style={{
+      <div className="contact-card" style={{
         background: "var(--ink)", border: "2.5px solid var(--ink)", borderRadius: 2,
         boxShadow: "var(--shadow-drawn)", padding: "40px",
         display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 36, alignItems: "center"
