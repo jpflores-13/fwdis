@@ -704,32 +704,34 @@ function App() {
     <div>
       <Header onHome={goHome} onShowAbout={goAbout} />
 
-      {view === "home" && (
-        <>
-          <Hero onBrowse={browseAll} />
-          <Recognition />
-          <EpisodeGrid onOpen={openEp} />
-          <About />
-          <Contact />
-        </>
-      )}
+      <main>
+        {view === "home" && (
+          <>
+            <Hero onBrowse={browseAll} />
+            <Recognition />
+            <EpisodeGrid onOpen={openEp} />
+            <About />
+            <Contact />
+          </>
+        )}
 
-      {view === "episodes" && (
-        <div style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "40px 24px 0" }}>
-          <EpisodeGrid onOpen={openEp} />
-        </div>
-      )}
+        {view === "episodes" && (
+          <div style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "40px 24px 0" }}>
+            <EpisodeGrid onOpen={openEp} />
+          </div>
+        )}
 
-      {view === "episode" && activeEp && (
-        <EpisodePlayer ep={activeEp} onBack={browseAll} />
-      )}
+        {view === "episode" && activeEp && (
+          <EpisodePlayer ep={activeEp} onBack={browseAll} />
+        )}
 
-      {view === "about" && (
-        <>
-          <About />
-          <Contact />
-        </>
-      )}
+        {view === "about" && (
+          <>
+            <About />
+            <Contact />
+          </>
+        )}
+      </main>
 
       <Footer onHome={goHome} />
     </div>
