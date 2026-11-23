@@ -1,5 +1,19 @@
 const EPISODES = [
   {
+    "number": 61,
+    "slug": "ep61-rowan-hayes",
+    "title": "Finding Purpose in Science, Medicine, and Life",
+    "guest": "Rowan Hayes",
+    "topic": "Physician Assistant",
+    "categories": [
+      "medical-doctor",
+      "science-communication"
+    ],
+    "blurb": "What does it mean to build a meaningful career in medicine while maintaining a fulfilling life outside of work? In this episode, JP Flores and guest co-host Hannah Kubinski chat with physician assistant (PA) and newlywed (!) Rowan Hayes about her journey from biochemistry to patient care. Together, they explore mentorship, medical misinformation, the importance of science communication, and navigating burnout. Rowan also shares her passion for gastroenterology, the gut-brain connection, and finding purpose beyond professional achievements!",
+    "date": "2026-11-23",
+    "spotifyEmbed": "https://open.spotify.com/embed/episode/4f7CPjPiXTEk1ZT7GGDeCi?utm_source=generator&theme=0"
+  },
+  {
     "number": 60,
     "slug": "ep60-dr-kaitlyn-sadtler",
     "title": "Shaping the Future of Bioengineering",
