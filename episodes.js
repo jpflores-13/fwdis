@@ -1,7 +1,7 @@
 const EPISODES = [
   {
-    "number": 61,
-    "slug": "ep61-rowan-hayes",
+    "number": 62,
+    "slug": "ep62-rowan-hayes",
     "title": "Finding Purpose in Science, Medicine, and Life",
     "guest": "Rowan Hayes",
     "topic": "Physician Assistant",
@@ -12,6 +12,19 @@ const EPISODES = [
     "blurb": "What does it mean to build a meaningful career in medicine while maintaining a fulfilling life outside of work? In this episode, JP Flores and guest co-host Hannah Kubinski chat with physician assistant (PA) and newlywed (!) Rowan Hayes about her journey from biochemistry to patient care. Together, they explore mentorship, medical misinformation, the importance of science communication, and navigating burnout. Rowan also shares her passion for gastroenterology, the gut-brain connection, and finding purpose beyond professional achievements!",
     "date": "2026-11-23",
     "spotifyEmbed": "https://open.spotify.com/embed/episode/4f7CPjPiXTEk1ZT7GGDeCi?utm_source=generator&theme=0"
+  },
+  {
+    "number": 61,
+    "slug": "ep61-alfredo-rodriguez-gomez",
+    "title": "Más allá de la ciencia",
+    "guest": "Alfredo de Jesús Rodríguez Gómez",
+    "topic": "Science Communication",
+    "categories": [
+      "science-communication"
+    ],
+    "blurb": "¿Qué significa encontrar tu lugar en la ciencia cuando las oportunidades no son iguales para todos? En este episodio en español de From where does it STEM?, las presentadoras invitadas Karen Ponce, Mia Somocurcio y María Hincapié-Otero conversan con Alfredo Rodríguez sobre la identidad, las oportunidades y la importancia de la comunidad científica. Juntos reflexionan sobre los desafíos del mundo académico, cómo superar barreras y la importancia de construir una ciencia más accesible e inclusiva. What does it mean to find your place in science when opportunities aren't equally accessible? In this Spanish-language episode of From where does it STEM?, guest hosts Karen Ponce, Mia Somocurcio, and María Hincapié-Otero sit down with Alfredo Rodríguez to explore identity, opportunity, and the importance of community in science. Together, they reflect on navigating academic spaces, overcoming barriers, and the importance of making science more accessible and inclusive.",
+    "date": "2026-11-23",
+    "spotifyEmbed": "https://open.spotify.com/embed/episode/3BPPxXoyOG7XnJ8knmLGYN?utm_source=generator&theme=0"
   },
   {
     "number": 60,
